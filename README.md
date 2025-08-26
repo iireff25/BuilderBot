@@ -1,15 +1,17 @@
-# Discord Server Builder Bot
+# 🤖 Server Builder Pro
 
-A powerful Discord bot built with discord.py that creates server structures using predefined templates. No AI required - everything is static and ready to use!
+A **professional** Discord bot built with discord.py that creates complete server structures using predefined templates. Features modern slash commands, beautiful UI, and comprehensive server management tools.
 
-## 🚀 Features
+## ✨ Features
 
 - **🏗️ Server Builder**: Create complete server structures with categories, channels, and roles
 - **📋 Multiple Templates**: Community, Gaming, Study, Marketplace, and Tech templates
-- **🗑️ Cleanup Tools**: Delete all created categories and channels
-- **📊 Server Info**: View detailed server statistics
-- **🛡️ Role Management**: Create and delete roles easily
-- **⚡ Utility Commands**: Ping, help, and more
+- **🧹 Complete Cleanup**: Delete all categories, channels, AND roles with confirmation
+- **📊 Server Info**: View detailed server statistics with professional embeds
+- **🛡️ Role Management**: Create and delete roles with proper permissions
+- **⚡ Slash Commands**: Modern Discord slash command support
+- **🎯 Professional UI**: Beautiful embeds with timestamps and owner information
+- **🔄 Real-time Progress**: Live updates during server building process
 
 ## 📋 Available Templates
 
@@ -75,21 +77,22 @@ Your Discord bot needs these permissions:
 
 ## 🎯 Commands
 
-### Server Building
+### Prefix Commands (Legacy)
 - `!build` - Show available templates
 - `!build <template>` - Build server structure using template
-- `!deletebuild` - Delete all categories and channels (with confirmation)
-
-### Server Information
+- `!deletebuild` - Delete all categories, channels, and roles (with confirmation)
 - `!server` - Show server statistics and information
-
-### Role Management
 - `!addrole <name>` - Create a new role with default permissions
 - `!deleterole <name>` - Delete a role by name
-
-### Utility
 - `!ping` - Check bot latency
 - `!help` - Show all available commands
+
+### Slash Commands (Recommended)
+- `/build` - Interactive server building with template selection
+- `/deletebuild` - Delete all server structure with button confirmation
+- `/server` - Show server statistics and information
+- `/ping` - Check bot latency
+- `/help` - Show all available commands
 
 ## 🚀 Railway Deployment
 
