@@ -24,8 +24,9 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 # Remove default help command to avoid conflicts
 bot.remove_command('help')
 
-# Enable slash commands
-bot.tree = discord.app_commands.CommandTree(bot)
+# Note: We use the built-in CommandTree that discord.py automatically creates
+# No need to create a new one as it causes ClientException
+# The bot.tree is already available for registering slash commands
 
 # Load templates
 def load_templates():
