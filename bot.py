@@ -18,7 +18,7 @@ intents.guilds = True
 # Bot owner information
 BOT_OWNER_ID = 1179595808585285704
 BOT_OWNER_NAME = "Server Builder Pro"
-BOT_VERSION = "v1.0"
+BOT_VERSION = "v3.0"
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -146,7 +146,7 @@ async def ping(ctx):
     embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     await ctx.send(embed=embed)
 
-@bot.command(name='buildsaves')
+@bot.command(name='builds')
 async def list_saved_builds(ctx):
     """List all saved build codes (Administrator only)"""
     # Check permissions - Administrator required
@@ -193,9 +193,72 @@ async def list_saved_builds(ctx):
     
     embed.add_field(
         name="📋 Usage",
-        value="Use `!build <code>` to deploy any of these saved structures",
+        value="Use `!build <code>` to deploy any of these saved structures\nUse `!removebuild <code>` to delete a saved build",
         inline=False
     )
+    
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+    await ctx.send(embed=embed)
+
+@bot.command(name='removebuild')
+async def remove_saved_build(ctx, build_code: str):
+    """Remove a saved build code (Administrator only)"""
+    # Check permissions - Administrator required
+    if not ctx.author.guild_permissions.administrator:
+        embed = discord.Embed(
+            title="❌ Permission Denied",
+            description="**Administrator permissions required**\nYou need elevated permissions to remove saved builds.",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
+        return
+    
+    if not build_code:
+        embed = discord.Embed(
+            title="❌ Missing Build Code",
+            description="**Please provide a build code to remove.**\nUsage: `!removebuild <code>`",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
+        return
+    
+    # Convert to uppercase for consistency
+    build_code = build_code.upper()
+    
+    if build_code not in SAVED_BUILDS:
+        embed = discord.Embed(
+            title="❌ Build Code Not Found",
+            description=f"**Build code `{build_code}` not found!**\nUse `!builds` to see available saved builds.",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
+        return
+    
+    # Get build data before removing
+    build_data = SAVED_BUILDS[build_code]
+    server_name = build_data['server_name']
+    total_categories = len(build_data['categories'])
+    total_channels = sum(len(cat['channels']) for cat in build_data['categories'])
+    total_roles = len(build_data['roles'])
+    
+    # Remove the build
+    del SAVED_BUILDS[build_code]
+    
+    embed = discord.Embed(
+        title="🗑️ Build Removed Successfully",
+        description=f"**Build code `{build_code}` has been removed from saved builds.**",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
+    )
+    embed.add_field(name="🔑 Removed Code", value=f"`{build_code}`", inline=True)
+    embed.add_field(name="📊 Build Details", value=f"**{server_name}**\n📁 `{total_categories}` categories • 💬 `{total_channels}` channels • 🛡️ `{total_roles}` roles", inline=False)
+    embed.add_field(name="📋 Remaining Builds", value=f"`{len(SAVED_BUILDS)}` saved builds remaining", inline=True)
     
     embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     await ctx.send(embed=embed)
@@ -664,9 +727,17 @@ async def server_info(ctx):
         timestamp=datetime.utcnow()
     )
     
-    # Safely get owner mention
-    owner_mention = guild.owner.mention if guild.owner else "Unknown"
-    embed.add_field(name="👑 Server Owner", value=owner_mention, inline=True)
+    # Get server owner information
+    try:
+        owner = guild.owner
+        if owner:
+            owner_info = f"{owner.mention}\n**{owner.name}#{owner.discriminator}**\nID: `{owner.id}`"
+        else:
+            owner_info = "Unknown"
+    except:
+        owner_info = "Unknown"
+    
+    embed.add_field(name="👑 Server Owner", value=owner_info, inline=True)
     embed.add_field(name="👥 Total Members", value=f"`{guild.member_count}`", inline=True)
     embed.add_field(name="📅 Created", value=f"`{guild.created_at.strftime('%Y-%m-%d')}`", inline=True)
     
@@ -837,9 +908,17 @@ async def slash_server(interaction: discord.Interaction):
         timestamp=datetime.utcnow()
     )
     
-    # Safely get owner mention
-    owner_mention = guild.owner.mention if guild.owner else "Unknown"
-    embed.add_field(name="👑 Server Owner", value=owner_mention, inline=True)
+    # Get server owner information
+    try:
+        owner = guild.owner
+        if owner:
+            owner_info = f"{owner.mention}\n**{owner.name}#{owner.discriminator}**\nID: `{owner.id}`"
+        else:
+            owner_info = "Unknown"
+    except:
+        owner_info = "Unknown"
+    
+    embed.add_field(name="👑 Server Owner", value=owner_info, inline=True)
     embed.add_field(name="👥 Total Members", value=f"`{guild.member_count}`", inline=True)
     embed.add_field(name="📅 Created", value=f"`{guild.created_at.strftime('%Y-%m-%d')}`", inline=True)
     
