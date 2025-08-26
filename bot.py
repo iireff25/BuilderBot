@@ -124,9 +124,29 @@ async def build_server(ctx, template_name: str = None):
         if template.get('server_name'):
             await guild.edit(name=template['server_name'])
         
+        # Delete all existing channels and categories first
+        cleanup_embed = discord.Embed(
+            title="🧹 Cleaning Server",
+            description="Deleting all existing channels and categories...",
+            color=0x00ff00
+        )
+        await message.edit(embed=cleanup_embed)
+        
+        deleted_count = 0
+        for channel in guild.channels:
+            if channel != ctx.channel:  # Don't delete the command channel
+                try:
+                    await channel.delete(reason=f"Cleanup before building {template['server_name']}")
+                    deleted_count += 1
+                except Exception as e:
+                    print(f"Error deleting channel {channel.name}: {e}")
+        
+        print(f"Deleted {deleted_count} existing channels/categories")
+        
         # Create roles
         created_roles = []
         for role_data in template['roles']:
+            print(f"Creating role: {role_data['name']}")
             try:
                 # Convert permission strings to discord.Permissions
                 permissions = discord.Permissions()
@@ -147,8 +167,19 @@ async def build_server(ctx, template_name: str = None):
         created_categories = []
         created_channels = []
         
-        for category_data in template['categories']:
+        for i, category_data in enumerate(template['categories']):
+            # Update progress
+            progress_embed = discord.Embed(
+                title="🏗️ Building Server Structure",
+                description=f"Creating category **{category_data['name']}** ({i+1}/{len(template['categories'])})...",
+                color=0x00ff00
+            )
+            progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
+            progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
+            progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+            await message.edit(embed=progress_embed)
             try:
+                print(f"Creating category: {category_data['name']}")
                 # Create category
                 category = await guild.create_category(
                     name=category_data['name'],
@@ -159,26 +190,46 @@ async def build_server(ctx, template_name: str = None):
                 # Create channels in category
                 for channel_data in category_data['channels']:
                     try:
-                        channel_type = discord.ChannelType.voice if channel_data['type'] == 'voice' else discord.ChannelType.text
+                        if channel_data['type'] == 'voice':
+                            # Create voice channel
+                            channel = await guild.create_voice_channel(
+                                name=channel_data['name'],
+                                category=category,
+                                reason=f"Server structure created by {bot.user.name}"
+                            )
+                        else:
+                            # Create text channel
+                            channel_kwargs = {
+                                'name': channel_data['name'],
+                                'category': category,
+                                'reason': f"Server structure created by {bot.user.name}"
+                            }
+                            
+                            # Add topic for text channels
+                            if channel_data.get('topic'):
+                                channel_kwargs['topic'] = channel_data['topic']
+                            
+                            channel = await guild.create_text_channel(**channel_kwargs)
                         
-                        channel_kwargs = {
-                            'name': channel_data['name'],
-                            'type': channel_type,
-                            'reason': f"Server structure created by {bot.user.name}"
-                        }
-                        
-                        # Add topic for text channels
-                        if channel_type == discord.ChannelType.text and channel_data.get('topic'):
-                            channel_kwargs['topic'] = channel_data['topic']
-                        
-                        channel = await guild.create_channel(category=category, **channel_kwargs)
                         created_channels.append(channel)
+                        print(f"Created channel: {channel.name} in category: {category.name}")
                         
                     except Exception as e:
                         print(f"Error creating channel {channel_data['name']}: {e}")
                         
             except Exception as e:
                 print(f"Error creating category {category_data['name']}: {e}")
+        
+        # Final progress update
+        final_progress_embed = discord.Embed(
+            title="🏗️ Building Server Structure",
+            description="✅ All categories and channels created! Finalizing...",
+            color=0x00ff00
+        )
+        final_progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
+        final_progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
+        final_progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+        await message.edit(embed=final_progress_embed)
         
         # Update success message
         success_embed = discord.Embed(
@@ -189,6 +240,7 @@ async def build_server(ctx, template_name: str = None):
         success_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
         success_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
         success_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+        success_embed.add_field(name="Channels Cleaned", value=f"{deleted_count} old channels deleted", inline=True)
         
         if template.get('server_name'):
             success_embed.add_field(name="Server Renamed", value=f"✅ {template['server_name']}", inline=False)
@@ -380,4 +432,3 @@ if __name__ == "__main__":
     
     print("🚀 Starting Discord Server Builder Bot...")
     bot.run(token)
-
