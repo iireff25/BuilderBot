@@ -751,21 +751,40 @@ async def sync_commands(ctx):
 @bot.command(name='help')
 async def help_command(ctx):
     """Show all available commands"""
+    lang = get_server_language(ctx.guild.id)
+    
     embed = discord.Embed(
-        title="🚀 Server Builder Pro - Command Center",
-        description="**Next-Generation Discord Server Management**\nBuild, customize, and manage your server with professional templates",
+        title=get_message('help_title', lang),
+        description=get_message('help_desc', lang),
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
     
-    commands_info = {
-        "**🔧 Core Commands:**": "",
-        "`!build <template>`": "🏗️ Deploy complete server structure",
+    # Core Commands (Administrator required)
+    admin_commands = {
+        "**🔧 Core Commands (Admin):**": "",
+        "`!build <template/code>`": "🏗️ Deploy server structure from template or saved build",
+        "`!savebuild`": "💾 Save current server structure with unique code",
         "`!deletebuild`": "🗑️ Clean slate - remove all structure",
+        "`!builds`": "📋 List all your saved server builds",
+        "`!removebuild <code>`": "🗑️ Delete a specific saved build",
+        "`!language <en/ar>`": "🌐 Set bot language (English/Arabic)",
+        "`!addrole <name>`": "🛡️ Create a new role",
+        "`!deleterole <name>`": "🗑️ Delete a role by name"
+    }
+    
+    # Utility Commands (All members)
+    utility_commands = {
+        "**⚡ Utility Commands:**": "",
         "`!server`": "📊 Advanced server analytics",
         "`!ping`": "⚡ System performance check",
         "`!help`": "📖 Command documentation",
-        "**⚡ Slash Commands:**": "",
+        "`!owner`": "👑 Show bot owner information"
+    }
+    
+    # Slash Commands
+    slash_commands = {
+        "**🎯 Slash Commands:**": "",
         "`/build`": "🎯 Interactive template deployment",
         "`/deletebuild`": "🔄 One-click server reset",
         "`/server`": "📈 Real-time server metrics",
@@ -773,22 +792,35 @@ async def help_command(ctx):
         "`/help`": "📚 Command reference"
     }
     
-    for cmd, desc in commands_info.items():
+    # Add all command sections
+    for cmd, desc in admin_commands.items():
+        if cmd.startswith("**"):
+            embed.add_field(name=cmd, value=desc, inline=False)
+        else:
+            embed.add_field(name=cmd, value=desc, inline=False)
+    
+    for cmd, desc in utility_commands.items():
+        if cmd.startswith("**"):
+            embed.add_field(name=cmd, value=desc, inline=False)
+        else:
+            embed.add_field(name=cmd, value=desc, inline=False)
+    
+    for cmd, desc in slash_commands.items():
         if cmd.startswith("**"):
             embed.add_field(name=cmd, value=desc, inline=False)
         else:
             embed.add_field(name=cmd, value=desc, inline=False)
     
     embed.add_field(
-        name="🎨 Available Templates", 
-        value="**Community** • **Gaming** • **Study** • **Marketplace** • **Tech**", 
+        name=get_message('available_templates', lang), 
+        value=get_message('templates_list', lang), 
         inline=False
     )
     
     # Add Top.gg support section
     embed.add_field(
-        name="⭐ Support BuilderBot!",
-        value=f"**If you're enjoying BuilderBot, please consider leaving a review on Top.gg!**\n[Leave Review]({TOPGG_REVIEW_URL}) • [Vote for us]({TOPGG_VOTE_URL})",
+        name=get_message('support_bot', lang),
+        value=get_message('support_desc', lang, vote_url=TOPGG_VOTE_URL, review_url=TOPGG_REVIEW_URL),
         inline=False
     )
     
@@ -1243,21 +1275,40 @@ async def on_command_error(ctx, error):
 @bot.tree.command(name="help", description="📚 Show all available commands")
 async def slash_help(interaction: discord.Interaction):
     """Slash command version of help"""
+    lang = get_server_language(interaction.guild.id)
+    
     embed = discord.Embed(
-        title="🚀 Server Builder Pro - Command Center",
-        description="**Next-Generation Discord Server Management**\nBuild, customize, and manage your server with professional templates",
+        title=get_message('help_title', lang),
+        description=get_message('help_desc', lang),
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
     
-    commands_info = {
-        "**🔧 Core Commands:**": "",
-        "`!build <template>`": "🏗️ Deploy complete server structure",
+    # Core Commands (Administrator required)
+    admin_commands = {
+        "**🔧 Core Commands (Admin):**": "",
+        "`!build <template/code>`": "🏗️ Deploy server structure from template or saved build",
+        "`!savebuild`": "💾 Save current server structure with unique code",
         "`!deletebuild`": "🗑️ Clean slate - remove all structure",
+        "`!builds`": "📋 List all your saved server builds",
+        "`!removebuild <code>`": "🗑️ Delete a specific saved build",
+        "`!language <en/ar>`": "🌐 Set bot language (English/Arabic)",
+        "`!addrole <name>`": "🛡️ Create a new role",
+        "`!deleterole <name>`": "🗑️ Delete a role by name"
+    }
+    
+    # Utility Commands (All members)
+    utility_commands = {
+        "**⚡ Utility Commands:**": "",
         "`!server`": "📊 Advanced server analytics",
         "`!ping`": "⚡ System performance check",
         "`!help`": "📖 Command documentation",
-        "**⚡ Slash Commands:**": "",
+        "`!owner`": "👑 Show bot owner information"
+    }
+    
+    # Slash Commands
+    slash_commands = {
+        "**🎯 Slash Commands:**": "",
         "`/build`": "🎯 Interactive template deployment",
         "`/deletebuild`": "🔄 One-click server reset",
         "`/server`": "📈 Real-time server metrics",
@@ -1265,22 +1316,35 @@ async def slash_help(interaction: discord.Interaction):
         "`/help`": "📚 Command reference"
     }
     
-    for cmd, desc in commands_info.items():
+    # Add all command sections
+    for cmd, desc in admin_commands.items():
+        if cmd.startswith("**"):
+            embed.add_field(name=cmd, value=desc, inline=False)
+        else:
+            embed.add_field(name=cmd, value=desc, inline=False)
+    
+    for cmd, desc in utility_commands.items():
+        if cmd.startswith("**"):
+            embed.add_field(name=cmd, value=desc, inline=False)
+        else:
+            embed.add_field(name=cmd, value=desc, inline=False)
+    
+    for cmd, desc in slash_commands.items():
         if cmd.startswith("**"):
             embed.add_field(name=cmd, value=desc, inline=False)
         else:
             embed.add_field(name=cmd, value=desc, inline=False)
     
     embed.add_field(
-        name="🎨 Available Templates", 
-        value="**Community** • **Gaming** • **Study** • **Marketplace** • **Tech**", 
+        name=get_message('available_templates', lang), 
+        value=get_message('templates_list', lang), 
         inline=False
     )
     
     # Add Top.gg support section
     embed.add_field(
-        name="⭐ Support BuilderBot!",
-        value=f"**If you're enjoying BuilderBot, please consider leaving a review on Top.gg!**\n[Leave Review]({TOPGG_REVIEW_URL}) • [Vote for us]({TOPGG_VOTE_URL})",
+        name=get_message('support_bot', lang),
+        value=get_message('support_desc', lang, vote_url=TOPGG_VOTE_URL, review_url=TOPGG_REVIEW_URL),
         inline=False
     )
     
