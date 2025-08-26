@@ -1,0 +1,262 @@
+{
+  "community": {
+    "server_name": "🌍 Community Hub",
+    "categories": [
+      {
+        "name": "Welcome",
+        "channels": [
+          { "name": "👋-welcome", "type": "text", "topic": "Welcome new members!" },
+          { "name": "📢-announcements", "type": "text", "topic": "Important server announcements" },
+          { "name": "✅-rules", "type": "text", "topic": "Server rules and guidelines" },
+          { "name": "🎉-introductions", "type": "text", "topic": "Introduce yourself to the community" }
+        ]
+      },
+      {
+        "name": "General",
+        "channels": [
+          { "name": "💬-general", "type": "text", "topic": "General discussion" },
+          { "name": "🎵-music", "type": "voice", "topic": "Music and chill" },
+          { "name": "🎮-gaming", "type": "voice", "topic": "Gaming together" },
+          { "name": "📸-media", "type": "text", "topic": "Share photos and media" }
+        ]
+      },
+      {
+        "name": "Events",
+        "channels": [
+          { "name": "📅-events", "type": "text", "topic": "Upcoming events and activities" },
+          { "name": "🎪-event-voice", "type": "voice", "topic": "Event voice channel" }
+        ]
+      }
+    ],
+    "roles": [
+      { "name": "👑 Owner", "permissions": ["administrator"] },
+      { "name": "🛡️ Admin", "permissions": ["administrator"] },
+      { "name": "⚔️ Moderator", "permissions": ["manage_messages", "kick_members", "ban_members", "manage_channels"] },
+      { "name": "🎭 Event Host", "permissions": ["manage_messages", "connect", "speak"] },
+      { "name": "🌍 Member", "permissions": ["send_messages", "connect", "speak", "read_message_history"] }
+    ]
+  },
+  "gaming": {
+    "server_name": "🎮 Gaming Community",
+    "categories": [
+      {
+        "name": "Welcome",
+        "channels": [
+          { "name": "🎮-welcome", "type": "text", "topic": "Welcome to our gaming community!" },
+          { "name": "📢-announcements", "type": "text", "topic": "Gaming announcements and updates" },
+          { "name": "📋-rules", "type": "text", "topic": "Gaming server rules" }
+        ]
+      },
+      {
+        "name": "General Gaming",
+        "channels": [
+          { "name": "🎯-general", "type": "text", "topic": "General gaming discussion" },
+          { "name": "🎵-lobby", "type": "voice", "topic": "Main gaming lobby" },
+          { "name": "🎮-game-chat", "type": "text", "topic": "In-game chat and coordination" }
+        ]
+      },
+      {
+        "name": "Tournaments",
+        "channels": [
+          { "name": "🏆-tournaments", "type": "text", "topic": "Tournament announcements and signups" },
+          { "name": "⚔️-tournament-voice", "type": "voice", "topic": "Tournament voice channel" },
+          { "name": "📊-results", "type": "text", "topic": "Tournament results and standings" }
+        ]
+      },
+      {
+        "name": "Game Categories",
+        "channels": [
+          { "name": "🎲-fps-games", "type": "text", "topic": "FPS games discussion" },
+          { "name": "🏆-moba-games", "type": "text", "topic": "MOBA games discussion" },
+          { "name": "🎯-battle-royale", "type": "text", "topic": "Battle Royale games" },
+          { "name": "🎮-other-games", "type": "text", "topic": "Other games discussion" }
+        ]
+      },
+      {
+        "name": "Teams & Clips",
+        "channels": [
+          { "name": "👥-team-finder", "type": "text", "topic": "Find teammates for games" },
+          { "name": "🎬-clips", "type": "text", "topic": "Share your gaming clips" },
+          { "name": "📸-screenshots", "type": "text", "topic": "Share gaming screenshots" }
+        ]
+      }
+    ],
+    "roles": [
+      { "name": "👑 Owner", "permissions": ["administrator"] },
+      { "name": "🛡️ Admin", "permissions": ["administrator"] },
+      { "name": "⚔️ Moderator", "permissions": ["manage_messages", "kick_members", "ban_members", "manage_channels"] },
+      { "name": "🏆 Tournament Organizer", "permissions": ["manage_messages", "manage_channels", "connect", "speak"] },
+      { "name": "🎮 Pro Gamer", "permissions": ["send_messages", "connect", "speak", "read_message_history"] },
+      { "name": "🎯 Gamer", "permissions": ["send_messages", "connect", "speak", "read_message_history"] }
+    ]
+  },
+  "study": {
+    "server_name": "📚 Study Group",
+    "categories": [
+      {
+        "name": "Welcome",
+        "channels": [
+          { "name": "📚-welcome", "type": "text", "topic": "Welcome to our study community!" },
+          { "name": "📢-announcements", "type": "text", "topic": "Study announcements and updates" },
+          { "name": "📋-rules", "type": "text", "topic": "Study server rules and guidelines" }
+        ]
+      },
+      {
+        "name": "General Study",
+        "channels": [
+          { "name": "💬-general", "type": "text", "topic": "General study discussion" },
+          { "name": "📖-study-voice", "type": "voice", "topic": "Main study voice room" },
+          { "name": "🤝-homework-help", "type": "text", "topic": "Get help with homework" }
+        ]
+      },
+      {
+        "name": "Subjects",
+        "channels": [
+          { "name": "🔬-science", "type": "text", "topic": "Science subjects discussion" },
+          { "name": "📐-math", "type": "text", "topic": "Mathematics help and discussion" },
+          { "name": "🌍-history", "type": "text", "topic": "History and social studies" },
+          { "name": "📝-english", "type": "text", "topic": "English and literature" },
+          { "name": "💻-computer-science", "type": "text", "topic": "Computer science and programming" }
+        ]
+      },
+      {
+        "name": "Study Resources",
+        "channels": [
+          { "name": "📚-resources", "type": "text", "topic": "Share study resources and materials" },
+          { "name": "📝-notes", "type": "text", "topic": "Share study notes" },
+          { "name": "📅-study-schedule", "type": "text", "topic": "Study schedule and planning" }
+        ]
+      },
+      {
+        "name": "Study Rooms",
+        "channels": [
+          { "name": "🔇-quiet-study", "type": "voice", "topic": "Quiet study room" },
+          { "name": "💬-group-study", "type": "voice", "topic": "Group study sessions" },
+          { "name": "🎵-background-music", "type": "voice", "topic": "Study with background music" }
+        ]
+      }
+    ],
+    "roles": [
+      { "name": "👑 Owner", "permissions": ["administrator"] },
+      { "name": "🛡️ Admin", "permissions": ["administrator"] },
+      { "name": "📚 Study Leader", "permissions": ["manage_messages", "manage_channels", "connect", "speak"] },
+      { "name": "🎓 Tutor", "permissions": ["send_messages", "connect", "speak", "read_message_history"] },
+      { "name": "📖 Student", "permissions": ["send_messages", "connect", "speak", "read_message_history"] }
+    ]
+  },
+  "marketplace": {
+    "server_name": "🛒 Marketplace",
+    "categories": [
+      {
+        "name": "Welcome",
+        "channels": [
+          { "name": "🛒-welcome", "type": "text", "topic": "Welcome to our marketplace!" },
+          { "name": "📢-announcements", "type": "text", "topic": "Marketplace announcements" },
+          { "name": "📋-rules", "type": "text", "topic": "Marketplace rules and guidelines" },
+          { "name": "⚠️-scam-alerts", "type": "text", "topic": "Report scams and suspicious activity" }
+        ]
+      },
+      {
+        "name": "Buy & Sell",
+        "channels": [
+          { "name": "🛍️-buying", "type": "text", "topic": "Looking to buy items" },
+          { "name": "💰-selling", "type": "text", "topic": "Items for sale" },
+          { "name": "🤝-trading", "type": "text", "topic": "Item trading" },
+          { "name": "💎-deals", "type": "text", "topic": "Special deals and offers" }
+        ]
+      },
+      {
+        "name": "Categories",
+        "channels": [
+          { "name": "💻-electronics", "type": "text", "topic": "Electronics and gadgets" },
+          { "name": "👕-clothing", "type": "text", "topic": "Clothing and accessories" },
+          { "name": "📚-books", "type": "text", "topic": "Books and educational materials" },
+          { "name": "🎮-gaming", "type": "text", "topic": "Gaming items and accounts" },
+          { "name": "🏠-home", "type": "text", "topic": "Home and garden items" }
+        ]
+      },
+      {
+        "name": "Feedback & Support",
+        "channels": [
+          { "name": "⭐-feedback", "type": "text", "topic": "Buyer and seller feedback" },
+          { "name": "🛠️-support", "type": "text", "topic": "Marketplace support" },
+          { "name": "📞-negotiations", "type": "voice", "topic": "Voice negotiations" }
+        ]
+      }
+    ],
+    "roles": [
+      { "name": "👑 Owner", "permissions": ["administrator"] },
+      { "name": "🛡️ Admin", "permissions": ["administrator"] },
+      { "name": "⚖️ Moderator", "permissions": ["manage_messages", "kick_members", "ban_members", "manage_channels"] },
+      { "name": "✅ Verified Seller", "permissions": ["send_messages", "connect", "speak", "read_message_history"] },
+      { "name": "🛒 Buyer", "permissions": ["send_messages", "connect", "speak", "read_message_history"] }
+    ]
+  },
+  "tech": {
+    "server_name": "💻 Tech Community",
+    "categories": [
+      {
+        "name": "Welcome",
+        "channels": [
+          { "name": "💻-welcome", "type": "text", "topic": "Welcome to our tech community!" },
+          { "name": "📢-announcements", "type": "text", "topic": "Tech announcements and updates" },
+          { "name": "📋-rules", "type": "text", "topic": "Tech server rules" }
+        ]
+      },
+      {
+        "name": "General Tech",
+        "channels": [
+          { "name": "💬-general", "type": "text", "topic": "General tech discussion" },
+          { "name": "🎵-voice-lobby", "type": "voice", "topic": "Tech voice lobby" },
+          { "name": "📰-tech-news", "type": "text", "topic": "Latest tech news and updates" }
+        ]
+      },
+      {
+        "name": "Programming",
+        "channels": [
+          { "name": "🐍-python", "type": "text", "topic": "Python programming help" },
+          { "name": "☕-java", "type": "text", "topic": "Java programming help" },
+          { "name": "⚡-javascript", "type": "text", "topic": "JavaScript programming help" },
+          { "name": "🔷-csharp", "type": "text", "topic": "C# programming help" },
+          { "name": "🦀-rust", "type": "text", "topic": "Rust programming help" },
+          { "name": "💻-general-coding", "type": "text", "topic": "General programming discussion" }
+        ]
+      },
+      {
+        "name": "Development",
+        "channels": [
+          { "name": "🌐-web-dev", "type": "text", "topic": "Web development discussion" },
+          { "name": "📱-mobile-dev", "type": "text", "topic": "Mobile app development" },
+          { "name": "🎮-game-dev", "type": "text", "topic": "Game development" },
+          { "name": "🤖-ai-ml", "type": "text", "topic": "AI and Machine Learning" },
+          { "name": "☁️-cloud", "type": "text", "topic": "Cloud computing and DevOps" }
+        ]
+      },
+      {
+        "name": "Projects & Showcase",
+        "channels": [
+          { "name": "🚀-projects", "type": "text", "topic": "Share your projects" },
+          { "name": "🎨-showcase", "type": "text", "topic": "Project showcase and demos" },
+          { "name": "🤝-collaboration", "type": "text", "topic": "Find project collaborators" },
+          { "name": "💡-ideas", "type": "text", "topic": "Share project ideas" }
+        ]
+      },
+      {
+        "name": "Learning",
+        "channels": [
+          { "name": "📚-resources", "type": "text", "topic": "Learning resources and tutorials" },
+          { "name": "❓-help", "type": "text", "topic": "Get help with coding problems" },
+          { "name": "🎓-mentorship", "type": "text", "topic": "Find mentors and mentees" }
+        ]
+      }
+    ],
+    "roles": [
+      { "name": "👑 Owner", "permissions": ["administrator"] },
+      { "name": "🛡️ Admin", "permissions": ["administrator"] },
+      { "name": "⚔️ Moderator", "permissions": ["manage_messages", "kick_members", "ban_members", "manage_channels"] },
+      { "name": "💻 Senior Developer", "permissions": ["send_messages", "connect", "speak", "read_message_history"] },
+      { "name": "👨‍💻 Developer", "permissions": ["send_messages", "connect", "speak", "read_message_history"] },
+      { "name": "🎓 Student", "permissions": ["send_messages", "connect", "speak", "read_message_history"] }
+    ]
+  }
+}
