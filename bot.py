@@ -15,6 +15,9 @@ intents.guilds = True
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
+# Remove default help command to avoid conflicts
+bot.remove_command('help')
+
 # Load templates
 def load_templates():
     """Load server templates from JSON file"""
@@ -377,3 +380,4 @@ if __name__ == "__main__":
     
     print("🚀 Starting Discord Server Builder Bot...")
     bot.run(token)
+
