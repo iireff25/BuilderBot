@@ -18,7 +18,7 @@ intents.guilds = True
 # Bot owner information
 BOT_OWNER_ID = 1179595808585285704
 BOT_OWNER_NAME = "Server Builder Pro"
-BOT_VERSION = "v3.0"
+BOT_VERSION = "v1.0"
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -44,6 +44,65 @@ def load_templates():
 
 # Store templates globally
 TEMPLATES = load_templates()
+
+# Build storage system
+SAVED_BUILDS = {}
+
+def generate_build_code():
+    """Generate a unique 8-character build code"""
+    import random
+    import string
+    while True:
+        code = ''.join(random.choices(string.ascii_uppercase + string.digits, k=8))
+        if code not in SAVED_BUILDS:
+            return code
+
+def save_server_structure(guild):
+    """Save the complete server structure"""
+    build_data = {
+        'server_name': guild.name,
+        'categories': [],
+        'roles': []
+    }
+    
+    # Save categories and their channels
+    for category in guild.categories:
+        category_data = {
+            'name': category.name,
+            'channels': []
+        }
+        
+        # Save channels in this category
+        for channel in category.channels:
+            channel_data = {
+                'name': channel.name,
+                'type': 'voice' if isinstance(channel, discord.VoiceChannel) else 'text'
+            }
+            
+            # Add topic for text channels
+            if isinstance(channel, discord.TextChannel) and channel.topic:
+                channel_data['topic'] = channel.topic
+                
+            category_data['channels'].append(channel_data)
+            
+        build_data['categories'].append(category_data)
+    
+    # Save roles (excluding @everyone and bot roles)
+    for role in guild.roles:
+        if role.name != "@everyone" and role != guild.me.top_role:
+            role_data = {
+                'name': role.name,
+                'permissions': []
+            }
+            
+            # Convert permissions to strings
+            for perm, value in role.permissions:
+                if value:
+                    role_data['permissions'].append(perm)
+                    
+            build_data['roles'].append(role_data)
+    
+    return build_data
 
 @bot.event
 async def on_ready():
@@ -86,6 +145,134 @@ async def ping(ctx):
     )
     embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     await ctx.send(embed=embed)
+
+@bot.command(name='buildsaves')
+async def list_saved_builds(ctx):
+    """List all saved build codes (Administrator only)"""
+    # Check permissions - Administrator required
+    if not ctx.author.guild_permissions.administrator:
+        embed = discord.Embed(
+            title="❌ Permission Denied",
+            description="**Administrator permissions required**\nYou need elevated permissions to view saved builds.",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
+        return
+    
+    if not SAVED_BUILDS:
+        embed = discord.Embed(
+            title="📋 No Saved Builds",
+            description="**No server structures have been saved yet.**\nUse `!savebuild` to save your first server structure!",
+            color=0xffaa00,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
+        return
+    
+    embed = discord.Embed(
+        title="💾 Saved Server Builds",
+        description=f"**{len(SAVED_BUILDS)}** saved server structures available:",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
+    )
+    
+    # List all saved builds with details
+    for build_code, build_data in SAVED_BUILDS.items():
+        total_categories = len(build_data['categories'])
+        total_channels = sum(len(cat['channels']) for cat in build_data['categories'])
+        total_roles = len(build_data['roles'])
+        
+        embed.add_field(
+            name=f"🔑 `{build_code}`",
+            value=f"**{build_data['server_name']}**\n📁 `{total_categories}` categories • 💬 `{total_channels}` channels • 🛡️ `{total_roles}` roles",
+            inline=False
+        )
+    
+    embed.add_field(
+        name="📋 Usage",
+        value="Use `!build <code>` to deploy any of these saved structures",
+        inline=False
+    )
+    
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+    await ctx.send(embed=embed)
+
+@bot.command(name='savebuild')
+async def save_build(ctx):
+    """Save the current server structure with a unique code (Administrator only)"""
+    # Check permissions - Administrator required
+    if not ctx.author.guild_permissions.administrator:
+        embed = discord.Embed(
+            title="❌ Permission Denied",
+            description="**Administrator permissions required**\nYou need elevated permissions to save server structures.",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
+        return
+    
+    try:
+        # Send initial message
+        embed = discord.Embed(
+            title="💾 Saving Server Structure",
+            description="**Analyzing current server structure...**\nPlease wait while I scan your server.",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        message = await ctx.send(embed=embed)
+        
+        # Save the server structure
+        build_data = save_server_structure(ctx.guild)
+        
+        # Generate unique code
+        build_code = generate_build_code()
+        
+        # Store the build data
+        SAVED_BUILDS[build_code] = build_data
+        
+        # Count components
+        total_categories = len(build_data['categories'])
+        total_channels = sum(len(cat['channels']) for cat in build_data['categories'])
+        total_roles = len(build_data['roles'])
+        
+        # Create success embed
+        success_embed = discord.Embed(
+            title="✅ Server Structure Saved!",
+            description=f"**Your server structure has been saved successfully!**\nUse this code to recreate it on any server:",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        success_embed.add_field(
+            name="🔑 Build Code", 
+            value=f"`{build_code}`", 
+            inline=False
+        )
+        success_embed.add_field(name="📁 Categories", value=f"`{total_categories}`", inline=True)
+        success_embed.add_field(name="💬 Channels", value=f"`{total_channels}`", inline=True)
+        success_embed.add_field(name="🛡️ Roles", value=f"`{total_roles}`", inline=True)
+        success_embed.add_field(
+            name="📋 Usage", 
+            value=f"Use `!build {build_code}` to recreate this structure on any server", 
+            inline=False
+        )
+        success_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        
+        await message.edit(embed=success_embed)
+        
+    except Exception as e:
+        error_embed = discord.Embed(
+            title="❌ Save Failed",
+            description=f"**Error:** `{str(e)}`\nPlease try again or contact support.",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        error_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await message.edit(embed=error_embed)
 
 @bot.command(name='sync')
 async def sync_commands(ctx):
@@ -156,19 +343,33 @@ async def help_command(ctx):
     await ctx.send(embed=embed)
 
 @bot.command(name='build')
-async def build_server(ctx, template_name: str = None):
-    """Build server structure based on template"""
-    # Check permissions
+async def build_server(ctx, build_code: str = None):
+    """Build server structure based on template or saved build code"""
+    # Check permissions - Administrator required
     if not ctx.author.guild_permissions.administrator:
-        await ctx.send("❌ You need Administrator permissions to use this command!")
+        embed = discord.Embed(
+            title="❌ Permission Denied",
+            description="**Administrator permissions required**\nYou need elevated permissions to build server structures.",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
         return
     
-    if not template_name:
-        # Show available templates
+    if not build_code:
+        # Show available templates and build options
         embed = discord.Embed(
-            title="🎨 Available Templates",
-            description="**Choose a template to deploy your server structure:**",
+            title="🎨 Available Build Options",
+            description="**Choose a template or use a saved build code:**",
             color=0x00ff00
+        )
+        
+        # Show templates
+        embed.add_field(
+            name="📋 Templates", 
+            value="Use `!build <template>` with these templates:", 
+            inline=False
         )
         
         for template_key, template_data in TEMPLATES.items():
@@ -178,21 +379,60 @@ async def build_server(ctx, template_name: str = None):
                 inline=True
             )
         
+        # Show saved builds info
+        embed.add_field(
+            name="💾 Saved Builds", 
+            value=f"Use `!build <code>` with a saved build code\n**Available saved builds:** `{len(SAVED_BUILDS)}`", 
+            inline=False
+        )
+        
+        embed.add_field(
+            name="📋 Usage Examples", 
+            value="`!build community` - Use community template\n`!build ABC12345` - Use saved build code", 
+            inline=False
+        )
+        
         await ctx.send(embed=embed)
         return
     
-    template_name = template_name.lower()
-    if template_name not in TEMPLATES:
-        await ctx.send(f"❌ Template '{template_name}' not found! Use `!build` to see available templates.")
-        return
-    
-    template = TEMPLATES[template_name]
+    # Check if it's a saved build code (8 characters, alphanumeric)
+    if len(build_code) == 8 and build_code.isalnum():
+        # Try to find saved build
+        if build_code.upper() in SAVED_BUILDS:
+            template = SAVED_BUILDS[build_code.upper()]
+            build_type = "saved build"
+        else:
+            embed = discord.Embed(
+                title="❌ Build Code Not Found",
+                description=f"**Build code `{build_code}` not found!**\nMake sure the code is correct or use `!savebuild` to create a new one.",
+                color=0xff0000,
+                timestamp=datetime.utcnow()
+            )
+            embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+            await ctx.send(embed=embed)
+            return
+    else:
+        # Try to find template
+        template_name = build_code.lower()
+        if template_name not in TEMPLATES:
+            embed = discord.Embed(
+                title="❌ Template Not Found",
+                description=f"**Template `{build_code}` not found!**\nUse `!build` to see available templates and build codes.",
+                color=0xff0000,
+                timestamp=datetime.utcnow()
+            )
+            embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+            await ctx.send(embed=embed)
+            return
+        
+        template = TEMPLATES[template_name]
+        build_type = "template"
     guild = ctx.guild
     
     # Send initial message
     embed = discord.Embed(
         title="🚀 Deploying Server Structure",
-        description=f"**Template:** `{template['server_name']}`\n**Status:** Initializing deployment...",
+        description=f"**Source:** `{build_type}`\n**Name:** `{template['server_name']}`\n**Status:** Initializing deployment...",
         color=0x00ff00
     )
     embed.add_field(name="📁 Categories", value=f"`{len(template['categories'])}`", inline=True)
@@ -424,7 +664,9 @@ async def server_info(ctx):
         timestamp=datetime.utcnow()
     )
     
-    embed.add_field(name="👑 Server Owner", value=guild.owner.mention, inline=True)
+    # Safely get owner mention
+    owner_mention = guild.owner.mention if guild.owner else "Unknown"
+    embed.add_field(name="👑 Server Owner", value=owner_mention, inline=True)
     embed.add_field(name="👥 Total Members", value=f"`{guild.member_count}`", inline=True)
     embed.add_field(name="📅 Created", value=f"`{guild.created_at.strftime('%Y-%m-%d')}`", inline=True)
     
@@ -595,7 +837,9 @@ async def slash_server(interaction: discord.Interaction):
         timestamp=datetime.utcnow()
     )
     
-    embed.add_field(name="👑 Server Owner", value=guild.owner.mention, inline=True)
+    # Safely get owner mention
+    owner_mention = guild.owner.mention if guild.owner else "Unknown"
+    embed.add_field(name="👑 Server Owner", value=owner_mention, inline=True)
     embed.add_field(name="👥 Total Members", value=f"`{guild.member_count}`", inline=True)
     embed.add_field(name="📅 Created", value=f"`{guild.created_at.strftime('%Y-%m-%d')}`", inline=True)
     
