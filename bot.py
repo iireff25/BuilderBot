@@ -56,10 +56,15 @@ async def on_ready():
     
     # Sync slash commands globally
     try:
+        print("🔄 Syncing slash commands with Discord...")
         synced = await bot.tree.sync()
-        print(f"✅ Synced {len(synced)} slash commands globally!")
+        print(f"✅ Successfully synced {len(synced)} slash commands globally!")
+        print("📋 Available slash commands:")
+        for cmd in synced:
+            print(f"   /{cmd.name} - {cmd.description}")
     except Exception as e:
         print(f"❌ Error syncing slash commands: {e}")
+        print("💡 Make sure your bot has 'applications.commands' scope enabled!")
     
     # Set modern bot status
     await bot.change_presence(
@@ -81,6 +86,32 @@ async def ping(ctx):
     )
     embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     await ctx.send(embed=embed)
+
+@bot.command(name='sync')
+async def sync_commands(ctx):
+    """Sync slash commands (Owner only)"""
+    if ctx.author.id != BOT_OWNER_ID:
+        await ctx.send("❌ This command is only available to the bot owner!")
+        return
+    
+    try:
+        await ctx.send("🔄 Syncing slash commands...")
+        synced = await bot.tree.sync()
+        embed = discord.Embed(
+            title="✅ Commands Synced Successfully!",
+            description=f"**{len(synced)}** slash commands have been synced with Discord.",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        embed.add_field(
+            name="📋 Synced Commands", 
+            value="\n".join([f"`/{cmd.name}` - {cmd.description}" for cmd in synced]),
+            inline=False
+        )
+        embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
+        await ctx.send(embed=embed)
+    except Exception as e:
+        await ctx.send(f"❌ Error syncing commands: {str(e)}")
 
 @bot.command(name='help')
 async def help_command(ctx):
