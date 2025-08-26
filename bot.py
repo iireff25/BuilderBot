@@ -19,6 +19,9 @@ intents.guilds = True
 BOT_OWNER_ID = 1179595808585285704
 BOT_OWNER_NAME = "Server Builder Pro"
 BOT_VERSION = "v3.0"
+TOPGG_BOT_ID = "1409790273118273556"
+TOPGG_REVIEW_URL = f"https://top.gg/bot/{TOPGG_BOT_ID}#reviews"
+TOPGG_VOTE_URL = f"https://top.gg/bot/{TOPGG_BOT_ID}"
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -323,6 +326,12 @@ async def save_build(ctx):
             value=f"Use `!build {build_code}` to recreate this structure on any server", 
             inline=False
         )
+        # Add Top.gg voting prompt
+        success_embed.add_field(
+            name="⭐ Support BuilderBot!",
+            value=f"**Enjoying the bot? Please vote for us on Top.gg!**\n[Vote Now]({TOPGG_VOTE_URL}) • [Leave Review]({TOPGG_REVIEW_URL})",
+            inline=False
+        )
         success_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
         
         await message.edit(embed=success_embed)
@@ -397,6 +406,13 @@ async def help_command(ctx):
     embed.add_field(
         name="🎨 Available Templates", 
         value="**Community** • **Gaming** • **Study** • **Marketplace** • **Tech**", 
+        inline=False
+    )
+    
+    # Add Top.gg support section
+    embed.add_field(
+        name="⭐ Support BuilderBot!",
+        value=f"**If you're enjoying BuilderBot, please consider leaving a review on Top.gg!**\n[Leave Review]({TOPGG_REVIEW_URL}) • [Vote for us]({TOPGG_VOTE_URL})",
         inline=False
     )
     
@@ -642,6 +658,13 @@ async def build_server(ctx, build_code: str = None):
         if template.get('server_name'):
             success_embed.add_field(name="🏷️ Server Renamed", value=f"`{template['server_name']}`", inline=False)
         
+        # Add Top.gg voting prompt
+        success_embed.add_field(
+            name="⭐ Support BuilderBot!",
+            value=f"**Enjoying the bot? Please vote for us on Top.gg!**\n[Vote Now]({TOPGG_VOTE_URL}) • [Leave Review]({TOPGG_REVIEW_URL})",
+            inline=False
+        )
+        
         await message.edit(embed=success_embed)
         
     except Exception as e:
@@ -870,6 +893,13 @@ async def slash_help(interaction: discord.Interaction):
     embed.add_field(
         name="🎨 Available Templates", 
         value="**Community** • **Gaming** • **Study** • **Marketplace** • **Tech**", 
+        inline=False
+    )
+    
+    # Add Top.gg support section
+    embed.add_field(
+        name="⭐ Support BuilderBot!",
+        value=f"**If you're enjoying BuilderBot, please consider leaving a review on Top.gg!**\n[Leave Review]({TOPGG_REVIEW_URL}) • [Vote for us]({TOPGG_VOTE_URL})",
         inline=False
     )
     
@@ -1136,6 +1166,13 @@ async def slash_build(interaction: discord.Interaction, template: str):
         
         if template_data.get('server_name'):
             success_embed.add_field(name="🏷️ Server Renamed", value=f"`{template_data['server_name']}`", inline=False)
+        
+        # Add Top.gg voting prompt
+        success_embed.add_field(
+            name="⭐ Support BuilderBot!",
+            value=f"**Enjoying the bot? Please vote for us on Top.gg!**\n[Vote Now]({TOPGG_VOTE_URL}) • [Leave Review]({TOPGG_REVIEW_URL})",
+            inline=False
+        )
         
         success_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
         
