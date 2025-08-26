@@ -1,9 +1,11 @@
 import discord
 from discord.ext import commands
+from discord import app_commands
 import json
 import os
 from dotenv import load_dotenv
 import asyncio
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -13,10 +15,17 @@ intents = discord.Intents.default()
 intents.message_content = True
 intents.guilds = True
 
+# Bot owner information
+BOT_OWNER_ID = 1179595808585285704
+BOT_OWNER_NAME = "Server Builder Pro"
+
 bot = commands.Bot(command_prefix='!', intents=intents)
 
 # Remove default help command to avoid conflicts
 bot.remove_command('help')
+
+# Enable slash commands
+bot.tree = discord.app_commands.CommandTree(bot)
 
 # Load templates
 def load_templates():
@@ -40,37 +49,79 @@ async def on_ready():
     print(f'🤖 {bot.user} has connected to Discord!')
     print(f'📊 Serving {len(bot.guilds)} guilds')
     print(f'👥 Serving {len(bot.users)} users')
+    print(f'👑 Bot Owner: <@{BOT_OWNER_ID}>')
     print('✅ Bot is ready!')
+    
+    # Sync slash commands
+    try:
+        synced = await bot.tree.sync()
+        print(f"✅ Synced {len(synced)} slash commands!")
+    except Exception as e:
+        print(f"❌ Error syncing slash commands: {e}")
+    
+    # Set bot status
+    await bot.change_presence(
+        activity=discord.Activity(
+            type=discord.ActivityType.watching,
+            name=f"{len(bot.guilds)} servers | /help"
+        )
+    )
 
 @bot.command(name='ping')
 async def ping(ctx):
     """Check bot latency"""
     latency = round(bot.latency * 1000)
-    await ctx.send(f'🏓 Pong! Latency: {latency}ms')
+    embed = discord.Embed(
+        title="🏓 Pong!",
+        description=f"Bot latency: **{latency}ms**",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
+    )
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    await ctx.send(embed=embed)
 
 @bot.command(name='help')
 async def help_command(ctx):
     """Show all available commands"""
     embed = discord.Embed(
-        title="🤖 Server Builder Bot Commands",
-        description="Here are all the available commands:",
-        color=0x00ff00
+        title="🤖 Server Builder Pro - Commands",
+        description="Professional Discord server structure builder with templates",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
     )
     
     commands_info = {
-        "!build <template>": "Build a server structure using a template (community, gaming, study, marketplace, tech)",
-        "!deletebuild": "Delete all categories and channels created by the bot",
-        "!server": "Show server information and statistics",
-        "!addrole <name>": "Create a new role with default permissions",
-        "!deleterole <name>": "Delete a role by name",
-        "!ping": "Check bot latency",
-        "!help": "Show this help message"
+        "**Prefix Commands:**": "",
+        "`!build <template>`": "Build server structure using templates",
+        "`!deletebuild`": "Delete all categories, channels, and roles",
+        "`!server`": "Show server information and statistics",
+        "`!addrole <name>`": "Create a new role with default permissions",
+        "`!deleterole <name>`": "Delete a role by name",
+        "`!ping`": "Check bot latency",
+        "`!help`": "Show this help message",
+        "**Slash Commands:**": "",
+        "`/build`": "Build server structure (interactive)",
+        "`/deletebuild`": "Delete all server structure",
+        "`/server`": "Show server information",
+        "`/ping`": "Check bot latency",
+        "`/help`": "Show this help message"
     }
     
     for cmd, desc in commands_info.items():
-        embed.add_field(name=cmd, value=desc, inline=False)
+        if cmd.startswith("**"):
+            embed.add_field(name=cmd, value=desc, inline=False)
+        else:
+            embed.add_field(name=cmd, value=desc, inline=False)
     
-    embed.set_footer(text="Bot created with ❤️")
+    embed.add_field(
+        name="📋 Available Templates", 
+        value="`community`, `gaming`, `study`, `marketplace`, `tech`", 
+        inline=False
+    )
+    
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro v2.0")
+    embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else None)
+    
     await ctx.send(embed=embed)
 
 @bot.command(name='build')
@@ -133,6 +184,9 @@ async def build_server(ctx, template_name: str = None):
         await message.edit(embed=cleanup_embed)
         
         deleted_count = 0
+        deleted_roles = 0
+        
+        # Delete all channels and categories
         for channel in guild.channels:
             if channel != ctx.channel:  # Don't delete the command channel
                 try:
@@ -141,7 +195,16 @@ async def build_server(ctx, template_name: str = None):
                 except Exception as e:
                     print(f"Error deleting channel {channel.name}: {e}")
         
-        print(f"Deleted {deleted_count} existing channels/categories")
+        # Delete all roles except @everyone and bot's own role
+        for role in guild.roles:
+            if role.name != "@everyone" and role != guild.me.top_role:
+                try:
+                    await role.delete(reason=f"Cleanup before building {template['server_name']}")
+                    deleted_roles += 1
+                except Exception as e:
+                    print(f"Error deleting role {role.name}: {e}")
+        
+        print(f"Deleted {deleted_count} channels/categories and {deleted_roles} roles")
         
         # Create roles
         created_roles = []
@@ -241,6 +304,7 @@ async def build_server(ctx, template_name: str = None):
         success_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
         success_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
         success_embed.add_field(name="Channels Cleaned", value=f"{deleted_count} old channels deleted", inline=True)
+        success_embed.add_field(name="Roles Cleaned", value=f"{deleted_roles} old roles deleted", inline=True)
         
         if template.get('server_name'):
             success_embed.add_field(name="Server Renamed", value=f"✅ {template['server_name']}", inline=False)
@@ -325,7 +389,8 @@ async def server_info(ctx):
     
     embed = discord.Embed(
         title=f"📊 {guild.name} Server Information",
-        color=0x00ff00
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
     )
     
     embed.add_field(name="👑 Owner", value=guild.owner.mention, inline=True)
@@ -342,6 +407,8 @@ async def server_info(ctx):
     
     if guild.icon:
         embed.set_thumbnail(url=guild.icon.url)
+    
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
     
     await ctx.send(embed=embed)
 
@@ -422,6 +489,394 @@ async def on_command_error(ctx, error):
     else:
         print(f"Error in command {ctx.command}: {error}")
         await ctx.send("❌ An unexpected error occurred. Please try again.")
+
+# ==================== SLASH COMMANDS ====================
+
+@bot.tree.command(name="help", description="Show all available commands")
+async def slash_help(interaction: discord.Interaction):
+    """Slash command version of help"""
+    embed = discord.Embed(
+        title="🤖 Server Builder Pro - Commands",
+        description="Professional Discord server structure builder with templates",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
+    )
+    
+    commands_info = {
+        "**Prefix Commands:**": "",
+        "`!build <template>`": "Build server structure using templates",
+        "`!deletebuild`": "Delete all categories, channels, and roles",
+        "`!server`": "Show server information and statistics",
+        "`!addrole <name>`": "Create a new role with default permissions",
+        "`!deleterole <name>`": "Delete a role by name",
+        "`!ping`": "Check bot latency",
+        "`!help`": "Show this help message",
+        "**Slash Commands:**": "",
+        "`/build`": "Build server structure (interactive)",
+        "`/deletebuild`": "Delete all server structure",
+        "`/server`": "Show server information",
+        "`/ping`": "Check bot latency",
+        "`/help`": "Show this help message"
+    }
+    
+    for cmd, desc in commands_info.items():
+        if cmd.startswith("**"):
+            embed.add_field(name=cmd, value=desc, inline=False)
+        else:
+            embed.add_field(name=cmd, value=desc, inline=False)
+    
+    embed.add_field(
+        name="📋 Available Templates", 
+        value="`community`, `gaming`, `study`, `marketplace`, `tech`", 
+        inline=False
+    )
+    
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro v2.0")
+    embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else None)
+    
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="ping", description="Check bot latency")
+async def slash_ping(interaction: discord.Interaction):
+    """Slash command version of ping"""
+    latency = round(bot.latency * 1000)
+    embed = discord.Embed(
+        title="🏓 Pong!",
+        description=f"Bot latency: **{latency}ms**",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
+    )
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="server", description="Show server information and statistics")
+async def slash_server(interaction: discord.Interaction):
+    """Slash command version of server info"""
+    guild = interaction.guild
+    
+    # Count channels by type
+    text_channels = len([c for c in guild.channels if isinstance(c, discord.TextChannel)])
+    voice_channels = len([c for c in guild.channels if isinstance(c, discord.VoiceChannel)])
+    categories = len(guild.categories)
+    
+    embed = discord.Embed(
+        title=f"📊 {guild.name} Server Information",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
+    )
+    
+    embed.add_field(name="👑 Owner", value=guild.owner.mention, inline=True)
+    embed.add_field(name="👥 Members", value=guild.member_count, inline=True)
+    embed.add_field(name="📅 Created", value=guild.created_at.strftime("%Y-%m-%d"), inline=True)
+    
+    embed.add_field(name="💬 Text Channels", value=text_channels, inline=True)
+    embed.add_field(name="🎵 Voice Channels", value=voice_channels, inline=True)
+    embed.add_field(name="📁 Categories", value=categories, inline=True)
+    
+    embed.add_field(name="🛡️ Roles", value=len(guild.roles), inline=True)
+    embed.add_field(name="😀 Emojis", value=len(guild.emojis), inline=True)
+    embed.add_field(name="🎨 Boost Level", value=guild.premium_tier, inline=True)
+    
+    if guild.icon:
+        embed.set_thumbnail(url=guild.icon.url)
+    
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    
+    await interaction.response.send_message(embed=embed)
+
+@bot.tree.command(name="build", description="Build server structure using templates")
+@app_commands.describe(template="Choose a template to build")
+@app_commands.choices(template=[
+    app_commands.Choice(name="Community Hub", value="community"),
+    app_commands.Choice(name="Gaming Community", value="gaming"),
+    app_commands.Choice(name="Study Group", value="study"),
+    app_commands.Choice(name="Marketplace", value="marketplace"),
+    app_commands.Choice(name="Tech Community", value="tech")
+])
+async def slash_build(interaction: discord.Interaction, template: str):
+    """Slash command version of build"""
+    # Check permissions
+    if not interaction.user.guild_permissions.administrator:
+        embed = discord.Embed(
+            title="❌ Permission Denied",
+            description="You need Administrator permissions to use this command!",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    if template not in TEMPLATES:
+        embed = discord.Embed(
+            title="❌ Template Not Found",
+            description=f"Template '{template}' not found!",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    # Defer response since this will take time
+    await interaction.response.defer()
+    
+    template_data = TEMPLATES[template]
+    guild = interaction.guild
+    
+    # Send initial message
+    embed = discord.Embed(
+        title="🏗️ Building Server Structure",
+        description=f"Building **{template_data['server_name']}** template...",
+        color=0x00ff00,
+        timestamp=datetime.utcnow()
+    )
+    embed.add_field(name="Categories", value=f"{len(template_data['categories'])}", inline=True)
+    embed.add_field(name="Roles", value=f"{len(template_data['roles'])}", inline=True)
+    embed.add_field(name="Total Channels", value=f"{sum(len(cat['channels']) for cat in template_data['categories'])}", inline=True)
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    
+    message = await interaction.followup.send(embed=embed)
+    
+    try:
+        # Rename server if template has a name
+        if template_data.get('server_name'):
+            await guild.edit(name=template_data['server_name'])
+        
+        # Delete all existing channels and categories first
+        cleanup_embed = discord.Embed(
+            title="🧹 Cleaning Server",
+            description="Deleting all existing channels, categories, and roles...",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        cleanup_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        await message.edit(embed=cleanup_embed)
+        
+        deleted_count = 0
+        deleted_roles = 0
+        
+        # Delete all channels and categories
+        for channel in guild.channels:
+            if channel != interaction.channel:  # Don't delete the command channel
+                try:
+                    await channel.delete(reason=f"Cleanup before building {template_data['server_name']}")
+                    deleted_count += 1
+                except Exception as e:
+                    print(f"Error deleting channel {channel.name}: {e}")
+        
+        # Delete all roles except @everyone and bot's own role
+        for role in guild.roles:
+            if role.name != "@everyone" and role != guild.me.top_role:
+                try:
+                    await role.delete(reason=f"Cleanup before building {template_data['server_name']}")
+                    deleted_roles += 1
+                except Exception as e:
+                    print(f"Error deleting role {role.name}: {e}")
+        
+        print(f"Deleted {deleted_count} channels/categories and {deleted_roles} roles")
+        
+        # Create roles
+        created_roles = []
+        for role_data in template_data['roles']:
+            print(f"Creating role: {role_data['name']}")
+            try:
+                # Convert permission strings to discord.Permissions
+                permissions = discord.Permissions()
+                for perm in role_data.get('permissions', []):
+                    if hasattr(discord.Permissions, perm):
+                        setattr(permissions, perm, True)
+                
+                role = await guild.create_role(
+                    name=role_data['name'],
+                    permissions=permissions,
+                    reason=f"Server structure created by {bot.user.name}"
+                )
+                created_roles.append(role)
+            except Exception as e:
+                print(f"Error creating role {role_data['name']}: {e}")
+        
+        # Create categories and channels
+        created_categories = []
+        created_channels = []
+        
+        for i, category_data in enumerate(template_data['categories']):
+            # Update progress
+            progress_embed = discord.Embed(
+                title="🏗️ Building Server Structure",
+                description=f"Creating category **{category_data['name']}** ({i+1}/{len(template_data['categories'])})...",
+                color=0x00ff00,
+                timestamp=datetime.utcnow()
+            )
+            progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
+            progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
+            progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+            progress_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+            await message.edit(embed=progress_embed)
+            
+            try:
+                print(f"Creating category: {category_data['name']}")
+                # Create category
+                category = await guild.create_category(
+                    name=category_data['name'],
+                    reason=f"Server structure created by {bot.user.name}"
+                )
+                created_categories.append(category)
+                
+                # Create channels in category
+                for channel_data in category_data['channels']:
+                    try:
+                        if channel_data['type'] == 'voice':
+                            # Create voice channel
+                            channel = await guild.create_voice_channel(
+                                name=channel_data['name'],
+                                category=category,
+                                reason=f"Server structure created by {bot.user.name}"
+                            )
+                        else:
+                            # Create text channel
+                            channel_kwargs = {
+                                'name': channel_data['name'],
+                                'category': category,
+                                'reason': f"Server structure created by {bot.user.name}"
+                            }
+                            
+                            # Add topic for text channels
+                            if channel_data.get('topic'):
+                                channel_kwargs['topic'] = channel_data['topic']
+                            
+                            channel = await guild.create_text_channel(**channel_kwargs)
+                        
+                        created_channels.append(channel)
+                        print(f"Created channel: {channel.name} in category: {category.name}")
+                        
+                    except Exception as e:
+                        print(f"Error creating channel {channel_data['name']}: {e}")
+                        
+            except Exception as e:
+                print(f"Error creating category {category_data['name']}: {e}")
+        
+        # Final progress update
+        final_progress_embed = discord.Embed(
+            title="🏗️ Building Server Structure",
+            description="✅ All categories and channels created! Finalizing...",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        final_progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
+        final_progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
+        final_progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+        final_progress_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        await message.edit(embed=final_progress_embed)
+        
+        # Update success message
+        success_embed = discord.Embed(
+            title="✅ Server Structure Built Successfully!",
+            description=f"**{template_data['server_name']}** template has been applied to your server.",
+            color=0x00ff00,
+            timestamp=datetime.utcnow()
+        )
+        success_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
+        success_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
+        success_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+        success_embed.add_field(name="Channels Cleaned", value=f"{deleted_count} old channels deleted", inline=True)
+        success_embed.add_field(name="Roles Cleaned", value=f"{deleted_roles} old roles deleted", inline=True)
+        
+        if template_data.get('server_name'):
+            success_embed.add_field(name="Server Renamed", value=f"✅ {template_data['server_name']}", inline=False)
+        
+        success_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro v2.0")
+        
+        await message.edit(embed=success_embed)
+        
+    except Exception as e:
+        error_embed = discord.Embed(
+            title="❌ Error Building Server Structure",
+            description=f"An error occurred: {str(e)}",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        error_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        await message.edit(embed=error_embed)
+
+@bot.tree.command(name="deletebuild", description="Delete all categories, channels, and roles")
+async def slash_deletebuild(interaction: discord.Interaction):
+    """Slash command version of deletebuild"""
+    # Check permissions
+    if not interaction.user.guild_permissions.administrator:
+        embed = discord.Embed(
+            title="❌ Permission Denied",
+            description="You need Administrator permissions to use this command!",
+            color=0xff0000,
+            timestamp=datetime.utcnow()
+        )
+        embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        await interaction.response.send_message(embed=embed, ephemeral=True)
+        return
+    
+    # Create confirmation embed
+    embed = discord.Embed(
+        title="⚠️ Confirm Deletion",
+        description="This will delete ALL categories, channels, and roles in the server. This action cannot be undone!",
+        color=0xffaa00,
+        timestamp=datetime.utcnow()
+    )
+    embed.add_field(name="Are you sure?", value="Click the button below to confirm", inline=False)
+    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    
+    # Create confirmation button
+    class ConfirmView(discord.ui.View):
+        def __init__(self):
+            super().__init__(timeout=30.0)
+        
+        @discord.ui.button(label="✅ Confirm", style=discord.ButtonStyle.danger)
+        async def confirm(self, button: discord.ui.Button, interaction: discord.Interaction):
+            if interaction.user.guild_permissions.administrator:
+                # Delete all categories and channels
+                deleted_count = 0
+                deleted_roles = 0
+                
+                for channel in interaction.guild.channels:
+                    if channel != interaction.channel:  # Don't delete the command channel
+                        try:
+                            await channel.delete(reason=f"Cleanup by {bot.user.name}")
+                            deleted_count += 1
+                        except Exception as e:
+                            print(f"Error deleting channel {channel.name}: {e}")
+                
+                # Delete all roles except @everyone and bot's own role
+                for role in interaction.guild.roles:
+                    if role.name != "@everyone" and role != interaction.guild.me.top_role:
+                        try:
+                            await role.delete(reason=f"Cleanup by {bot.user.name}")
+                            deleted_roles += 1
+                        except Exception as e:
+                            print(f"Error deleting role {role.name}: {e}")
+                
+                success_embed = discord.Embed(
+                    title="🗑️ Cleanup Complete",
+                    description=f"Successfully deleted {deleted_count} channels/categories and {deleted_roles} roles.",
+                    color=0x00ff00,
+                    timestamp=datetime.utcnow()
+                )
+                success_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+                
+                await interaction.response.edit_message(embed=success_embed, view=None)
+            else:
+                await interaction.response.send_message("❌ You don't have permission to do this!", ephemeral=True)
+        
+        @discord.ui.button(label="❌ Cancel", style=discord.ButtonStyle.secondary)
+        async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
+            cancel_embed = discord.Embed(
+                title="❌ Deletion Cancelled",
+                description="The deletion has been cancelled.",
+                color=0xff0000,
+                timestamp=datetime.utcnow()
+            )
+            cancel_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+            await interaction.response.edit_message(embed=cancel_embed, view=None)
+    
+    await interaction.response.send_message(embed=embed, view=ConfirmView())
 
 # Run the bot
 if __name__ == "__main__":
