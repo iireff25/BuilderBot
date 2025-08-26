@@ -18,6 +18,7 @@ intents.guilds = True
 # Bot owner information
 BOT_OWNER_ID = 1179595808585285704
 BOT_OWNER_NAME = "Server Builder Pro"
+BOT_VERSION = "v3.0"
 
 bot = commands.Bot(command_prefix='!', intents=intents)
 
@@ -53,18 +54,18 @@ async def on_ready():
     print(f'👑 Bot Owner: <@{BOT_OWNER_ID}>')
     print('✅ Bot is ready!')
     
-    # Sync slash commands
+    # Sync slash commands globally
     try:
         synced = await bot.tree.sync()
-        print(f"✅ Synced {len(synced)} slash commands!")
+        print(f"✅ Synced {len(synced)} slash commands globally!")
     except Exception as e:
         print(f"❌ Error syncing slash commands: {e}")
     
-    # Set bot status
+    # Set modern bot status
     await bot.change_presence(
         activity=discord.Activity(
-            type=discord.ActivityType.watching,
-            name=f"{len(bot.guilds)} servers | /help"
+            type=discord.ActivityType.playing,
+            name=f"Server Builder Pro {BOT_VERSION} | /help"
         )
     )
 
@@ -73,39 +74,37 @@ async def ping(ctx):
     """Check bot latency"""
     latency = round(bot.latency * 1000)
     embed = discord.Embed(
-        title="🏓 Pong!",
-        description=f"Bot latency: **{latency}ms**",
+        title="⚡ System Status",
+        description=f"**Latency:** `{latency}ms`\n**Status:** `Online`\n**Version:** `{BOT_VERSION}`",
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     await ctx.send(embed=embed)
 
 @bot.command(name='help')
 async def help_command(ctx):
     """Show all available commands"""
     embed = discord.Embed(
-        title="🤖 Server Builder Pro - Commands",
-        description="Professional Discord server structure builder with templates",
+        title="🚀 Server Builder Pro - Command Center",
+        description="**Next-Generation Discord Server Management**\nBuild, customize, and manage your server with professional templates",
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
     
     commands_info = {
-        "**Prefix Commands:**": "",
-        "`!build <template>`": "Build server structure using templates",
-        "`!deletebuild`": "Delete all categories, channels, and roles",
-        "`!server`": "Show server information and statistics",
-        "`!addrole <name>`": "Create a new role with default permissions",
-        "`!deleterole <name>`": "Delete a role by name",
-        "`!ping`": "Check bot latency",
-        "`!help`": "Show this help message",
-        "**Slash Commands:**": "",
-        "`/build`": "Build server structure (interactive)",
-        "`/deletebuild`": "Delete all server structure",
-        "`/server`": "Show server information",
-        "`/ping`": "Check bot latency",
-        "`/help`": "Show this help message"
+        "**🔧 Core Commands:**": "",
+        "`!build <template>`": "🏗️ Deploy complete server structure",
+        "`!deletebuild`": "🗑️ Clean slate - remove all structure",
+        "`!server`": "📊 Advanced server analytics",
+        "`!ping`": "⚡ System performance check",
+        "`!help`": "📖 Command documentation",
+        "**⚡ Slash Commands:**": "",
+        "`/build`": "🎯 Interactive template deployment",
+        "`/deletebuild`": "🔄 One-click server reset",
+        "`/server`": "📈 Real-time server metrics",
+        "`/ping`": "⚡ Performance diagnostics",
+        "`/help`": "📚 Command reference"
     }
     
     for cmd, desc in commands_info.items():
@@ -115,12 +114,12 @@ async def help_command(ctx):
             embed.add_field(name=cmd, value=desc, inline=False)
     
     embed.add_field(
-        name="📋 Available Templates", 
-        value="`community`, `gaming`, `study`, `marketplace`, `tech`", 
+        name="🎨 Available Templates", 
+        value="**Community** • **Gaming** • **Study** • **Marketplace** • **Tech**", 
         inline=False
     )
     
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro v2.0")
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else None)
     
     await ctx.send(embed=embed)
@@ -136,15 +135,15 @@ async def build_server(ctx, template_name: str = None):
     if not template_name:
         # Show available templates
         embed = discord.Embed(
-            title="📋 Available Templates",
-            description="Use `!build <template>` to build a server structure:",
+            title="🎨 Available Templates",
+            description="**Choose a template to deploy your server structure:**",
             color=0x00ff00
         )
         
         for template_key, template_data in TEMPLATES.items():
             embed.add_field(
                 name=f"`{template_key}`", 
-                value=f"**{template_data['server_name']}**\n{len(template_data['categories'])} categories, {len(template_data['roles'])} roles",
+                value=f"**{template_data['server_name']}**\n`{len(template_data['categories'])}` categories • `{len(template_data['roles'])}` roles",
                 inline=True
             )
         
@@ -161,13 +160,13 @@ async def build_server(ctx, template_name: str = None):
     
     # Send initial message
     embed = discord.Embed(
-        title="🏗️ Building Server Structure",
-        description=f"Building **{template['server_name']}** template...",
+        title="🚀 Deploying Server Structure",
+        description=f"**Template:** `{template['server_name']}`\n**Status:** Initializing deployment...",
         color=0x00ff00
     )
-    embed.add_field(name="Categories", value=f"{len(template['categories'])}", inline=True)
-    embed.add_field(name="Roles", value=f"{len(template['roles'])}", inline=True)
-    embed.add_field(name="Total Channels", value=f"{sum(len(cat['channels']) for cat in template['categories'])}", inline=True)
+    embed.add_field(name="📁 Categories", value=f"`{len(template['categories'])}`", inline=True)
+    embed.add_field(name="🛡️ Roles", value=f"`{len(template['roles'])}`", inline=True)
+    embed.add_field(name="💬 Channels", value=f"`{sum(len(cat['channels']) for cat in template['categories'])}`", inline=True)
     
     message = await ctx.send(embed=embed)
     
@@ -178,8 +177,8 @@ async def build_server(ctx, template_name: str = None):
         
         # Delete all existing channels and categories first
         cleanup_embed = discord.Embed(
-            title="🧹 Cleaning Server",
-            description="Deleting all existing channels and categories...",
+            title="🧹 Server Cleanup",
+            description="**Phase 1:** Removing existing structure\n**Status:** Cleaning channels, categories, and roles...",
             color=0x00ff00
         )
         await message.edit(embed=cleanup_embed)
@@ -234,13 +233,13 @@ async def build_server(ctx, template_name: str = None):
         for i, category_data in enumerate(template['categories']):
             # Update progress
             progress_embed = discord.Embed(
-                title="🏗️ Building Server Structure",
-                description=f"Creating category **{category_data['name']}** ({i+1}/{len(template['categories'])})...",
+                title="🚀 Deploying Server Structure",
+                description=f"**Phase 2:** Building structure\n**Current:** `{category_data['name']}` ({i+1}/{len(template['categories'])})",
                 color=0x00ff00
             )
-            progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
-            progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
-            progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+            progress_embed.add_field(name="📁 Categories", value=f"`{len(created_categories)}`", inline=True)
+            progress_embed.add_field(name="💬 Channels", value=f"`{len(created_channels)}`", inline=True)
+            progress_embed.add_field(name="🛡️ Roles", value=f"`{len(created_roles)}`", inline=True)
             await message.edit(embed=progress_embed)
             try:
                 print(f"Creating category: {category_data['name']}")
@@ -286,36 +285,35 @@ async def build_server(ctx, template_name: str = None):
         
         # Final progress update
         final_progress_embed = discord.Embed(
-            title="🏗️ Building Server Structure",
-            description="✅ All categories and channels created! Finalizing...",
+            title="🚀 Deploying Server Structure",
+            description="**Phase 3:** Finalizing deployment\n**Status:** All components created successfully!",
             color=0x00ff00
         )
-        final_progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
-        final_progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
-        final_progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
+        final_progress_embed.add_field(name="📁 Categories", value=f"`{len(created_categories)}`", inline=True)
+        final_progress_embed.add_field(name="💬 Channels", value=f"`{len(created_channels)}`", inline=True)
+        final_progress_embed.add_field(name="🛡️ Roles", value=f"`{len(created_roles)}`", inline=True)
         await message.edit(embed=final_progress_embed)
         
         # Update success message
         success_embed = discord.Embed(
-            title="✅ Server Structure Built Successfully!",
-            description=f"**{template['server_name']}** template has been applied to your server.",
+            title="✅ Deployment Successful!",
+            description=f"**{template['server_name']}** has been deployed successfully!\nYour server is now ready for use.",
             color=0x00ff00
         )
-        success_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
-        success_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
-        success_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
-        success_embed.add_field(name="Channels Cleaned", value=f"{deleted_count} old channels deleted", inline=True)
-        success_embed.add_field(name="Roles Cleaned", value=f"{deleted_roles} old roles deleted", inline=True)
+        success_embed.add_field(name="📁 Categories", value=f"`{len(created_categories)}`", inline=True)
+        success_embed.add_field(name="💬 Channels", value=f"`{len(created_channels)}`", inline=True)
+        success_embed.add_field(name="🛡️ Roles", value=f"`{len(created_roles)}`", inline=True)
+        success_embed.add_field(name="🧹 Cleaned", value=f"`{deleted_count} channels, {deleted_roles} roles`", inline=True)
         
         if template.get('server_name'):
-            success_embed.add_field(name="Server Renamed", value=f"✅ {template['server_name']}", inline=False)
+            success_embed.add_field(name="🏷️ Server Renamed", value=f"`{template['server_name']}`", inline=False)
         
         await message.edit(embed=success_embed)
         
     except Exception as e:
         error_embed = discord.Embed(
-            title="❌ Error Building Server Structure",
-            description=f"An error occurred: {str(e)}",
+            title="❌ Deployment Failed",
+            description=f"**Error:** `{str(e)}`\nPlease check bot permissions and try again.",
             color=0xff0000
         )
         await message.edit(embed=error_embed)
@@ -389,27 +387,28 @@ async def server_info(ctx):
     categories = len(guild.categories)
     
     embed = discord.Embed(
-        title=f"📊 {guild.name} Server Information",
+        title=f"📊 {guild.name} - Server Analytics",
+        description="**Real-time server metrics and statistics**",
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
     
-    embed.add_field(name="👑 Owner", value=guild.owner.mention, inline=True)
-    embed.add_field(name="👥 Members", value=guild.member_count, inline=True)
-    embed.add_field(name="📅 Created", value=guild.created_at.strftime("%Y-%m-%d"), inline=True)
+    embed.add_field(name="👑 Server Owner", value=guild.owner.mention, inline=True)
+    embed.add_field(name="👥 Total Members", value=f"`{guild.member_count}`", inline=True)
+    embed.add_field(name="📅 Created", value=f"`{guild.created_at.strftime('%Y-%m-%d')}`", inline=True)
     
-    embed.add_field(name="💬 Text Channels", value=text_channels, inline=True)
-    embed.add_field(name="🎵 Voice Channels", value=voice_channels, inline=True)
-    embed.add_field(name="📁 Categories", value=categories, inline=True)
+    embed.add_field(name="💬 Text Channels", value=f"`{text_channels}`", inline=True)
+    embed.add_field(name="🎵 Voice Channels", value=f"`{voice_channels}`", inline=True)
+    embed.add_field(name="📁 Categories", value=f"`{categories}`", inline=True)
     
-    embed.add_field(name="🛡️ Roles", value=len(guild.roles), inline=True)
-    embed.add_field(name="😀 Emojis", value=len(guild.emojis), inline=True)
-    embed.add_field(name="🎨 Boost Level", value=guild.premium_tier, inline=True)
+    embed.add_field(name="🛡️ Roles", value=f"`{len(guild.roles)}`", inline=True)
+    embed.add_field(name="😀 Emojis", value=f"`{len(guild.emojis)}`", inline=True)
+    embed.add_field(name="🎨 Boost Level", value=f"`{guild.premium_tier}`", inline=True)
     
     if guild.icon:
         embed.set_thumbnail(url=guild.icon.url)
     
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     
     await ctx.send(embed=embed)
 
@@ -493,31 +492,29 @@ async def on_command_error(ctx, error):
 
 # ==================== SLASH COMMANDS ====================
 
-@bot.tree.command(name="help", description="Show all available commands")
+@bot.tree.command(name="help", description="📚 Show all available commands")
 async def slash_help(interaction: discord.Interaction):
     """Slash command version of help"""
     embed = discord.Embed(
-        title="🤖 Server Builder Pro - Commands",
-        description="Professional Discord server structure builder with templates",
+        title="🚀 Server Builder Pro - Command Center",
+        description="**Next-Generation Discord Server Management**\nBuild, customize, and manage your server with professional templates",
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
     
     commands_info = {
-        "**Prefix Commands:**": "",
-        "`!build <template>`": "Build server structure using templates",
-        "`!deletebuild`": "Delete all categories, channels, and roles",
-        "`!server`": "Show server information and statistics",
-        "`!addrole <name>`": "Create a new role with default permissions",
-        "`!deleterole <name>`": "Delete a role by name",
-        "`!ping`": "Check bot latency",
-        "`!help`": "Show this help message",
-        "**Slash Commands:**": "",
-        "`/build`": "Build server structure (interactive)",
-        "`/deletebuild`": "Delete all server structure",
-        "`/server`": "Show server information",
-        "`/ping`": "Check bot latency",
-        "`/help`": "Show this help message"
+        "**🔧 Core Commands:**": "",
+        "`!build <template>`": "🏗️ Deploy complete server structure",
+        "`!deletebuild`": "🗑️ Clean slate - remove all structure",
+        "`!server`": "📊 Advanced server analytics",
+        "`!ping`": "⚡ System performance check",
+        "`!help`": "📖 Command documentation",
+        "**⚡ Slash Commands:**": "",
+        "`/build`": "🎯 Interactive template deployment",
+        "`/deletebuild`": "🔄 One-click server reset",
+        "`/server`": "📈 Real-time server metrics",
+        "`/ping`": "⚡ Performance diagnostics",
+        "`/help`": "📚 Command reference"
     }
     
     for cmd, desc in commands_info.items():
@@ -527,30 +524,30 @@ async def slash_help(interaction: discord.Interaction):
             embed.add_field(name=cmd, value=desc, inline=False)
     
     embed.add_field(
-        name="📋 Available Templates", 
-        value="`community`, `gaming`, `study`, `marketplace`, `tech`", 
+        name="🎨 Available Templates", 
+        value="**Community** • **Gaming** • **Study** • **Marketplace** • **Tech**", 
         inline=False
     )
     
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro v2.0")
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     embed.set_thumbnail(url=bot.user.avatar.url if bot.user.avatar else None)
     
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="ping", description="Check bot latency")
+@bot.tree.command(name="ping", description="⚡ Check system performance")
 async def slash_ping(interaction: discord.Interaction):
     """Slash command version of ping"""
     latency = round(bot.latency * 1000)
     embed = discord.Embed(
-        title="🏓 Pong!",
-        description=f"Bot latency: **{latency}ms**",
+        title="⚡ System Performance",
+        description=f"**Latency:** `{latency}ms`\n**Status:** `Online`\n**Version:** `{BOT_VERSION}`",
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="server", description="Show server information and statistics")
+@bot.tree.command(name="server", description="📊 Advanced server analytics")
 async def slash_server(interaction: discord.Interaction):
     """Slash command version of server info"""
     guild = interaction.guild
@@ -561,31 +558,32 @@ async def slash_server(interaction: discord.Interaction):
     categories = len(guild.categories)
     
     embed = discord.Embed(
-        title=f"📊 {guild.name} Server Information",
+        title=f"📊 {guild.name} - Server Analytics",
+        description="**Real-time server metrics and statistics**",
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
     
-    embed.add_field(name="👑 Owner", value=guild.owner.mention, inline=True)
-    embed.add_field(name="👥 Members", value=guild.member_count, inline=True)
-    embed.add_field(name="📅 Created", value=guild.created_at.strftime("%Y-%m-%d"), inline=True)
+    embed.add_field(name="👑 Server Owner", value=guild.owner.mention, inline=True)
+    embed.add_field(name="👥 Total Members", value=f"`{guild.member_count}`", inline=True)
+    embed.add_field(name="📅 Created", value=f"`{guild.created_at.strftime('%Y-%m-%d')}`", inline=True)
     
-    embed.add_field(name="💬 Text Channels", value=text_channels, inline=True)
-    embed.add_field(name="🎵 Voice Channels", value=voice_channels, inline=True)
-    embed.add_field(name="📁 Categories", value=categories, inline=True)
+    embed.add_field(name="💬 Text Channels", value=f"`{text_channels}`", inline=True)
+    embed.add_field(name="🎵 Voice Channels", value=f"`{voice_channels}`", inline=True)
+    embed.add_field(name="📁 Categories", value=f"`{categories}`", inline=True)
     
-    embed.add_field(name="🛡️ Roles", value=len(guild.roles), inline=True)
-    embed.add_field(name="😀 Emojis", value=len(guild.emojis), inline=True)
-    embed.add_field(name="🎨 Boost Level", value=guild.premium_tier, inline=True)
+    embed.add_field(name="🛡️ Roles", value=f"`{len(guild.roles)}`", inline=True)
+    embed.add_field(name="😀 Emojis", value=f"`{len(guild.emojis)}`", inline=True)
+    embed.add_field(name="🎨 Boost Level", value=f"`{guild.premium_tier}`", inline=True)
     
     if guild.icon:
         embed.set_thumbnail(url=guild.icon.url)
     
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="build", description="Build server structure using templates")
+@bot.tree.command(name="build", description="🏗️ Deploy server structure with templates")
 @app_commands.describe(template="Choose a template to build")
 @app_commands.choices(template=[
     app_commands.Choice(name="Community Hub", value="community"),
@@ -627,15 +625,15 @@ async def slash_build(interaction: discord.Interaction, template: str):
     
     # Send initial message
     embed = discord.Embed(
-        title="🏗️ Building Server Structure",
-        description=f"Building **{template_data['server_name']}** template...",
+        title="🚀 Deploying Server Structure",
+        description=f"**Template:** `{template_data['server_name']}`\n**Status:** Initializing deployment...",
         color=0x00ff00,
         timestamp=datetime.utcnow()
     )
-    embed.add_field(name="Categories", value=f"{len(template_data['categories'])}", inline=True)
-    embed.add_field(name="Roles", value=f"{len(template_data['roles'])}", inline=True)
-    embed.add_field(name="Total Channels", value=f"{sum(len(cat['channels']) for cat in template_data['categories'])}", inline=True)
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    embed.add_field(name="📁 Categories", value=f"`{len(template_data['categories'])}`", inline=True)
+    embed.add_field(name="🛡️ Roles", value=f"`{len(template_data['roles'])}`", inline=True)
+    embed.add_field(name="💬 Channels", value=f"`{sum(len(cat['channels']) for cat in template_data['categories'])}`", inline=True)
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     
     message = await interaction.followup.send(embed=embed)
     
@@ -646,12 +644,12 @@ async def slash_build(interaction: discord.Interaction, template: str):
         
         # Delete all existing channels and categories first
         cleanup_embed = discord.Embed(
-            title="🧹 Cleaning Server",
-            description="Deleting all existing channels, categories, and roles...",
+            title="🧹 Server Cleanup",
+            description="**Phase 1:** Removing existing structure\n**Status:** Cleaning channels, categories, and roles...",
             color=0x00ff00,
             timestamp=datetime.utcnow()
         )
-        cleanup_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        cleanup_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
         await message.edit(embed=cleanup_embed)
         
         deleted_count = 0
@@ -704,15 +702,15 @@ async def slash_build(interaction: discord.Interaction, template: str):
         for i, category_data in enumerate(template_data['categories']):
             # Update progress
             progress_embed = discord.Embed(
-                title="🏗️ Building Server Structure",
-                description=f"Creating category **{category_data['name']}** ({i+1}/{len(template_data['categories'])})...",
+                title="🚀 Deploying Server Structure",
+                description=f"**Phase 2:** Building structure\n**Current:** `{category_data['name']}` ({i+1}/{len(template_data['categories'])})",
                 color=0x00ff00,
                 timestamp=datetime.utcnow()
             )
-            progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
-            progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
-            progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
-            progress_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+            progress_embed.add_field(name="📁 Categories", value=f"`{len(created_categories)}`", inline=True)
+            progress_embed.add_field(name="💬 Channels", value=f"`{len(created_channels)}`", inline=True)
+            progress_embed.add_field(name="🛡️ Roles", value=f"`{len(created_roles)}`", inline=True)
+            progress_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
             await message.edit(embed=progress_embed)
             
             try:
@@ -759,48 +757,47 @@ async def slash_build(interaction: discord.Interaction, template: str):
         
         # Final progress update
         final_progress_embed = discord.Embed(
-            title="🏗️ Building Server Structure",
-            description="✅ All categories and channels created! Finalizing...",
+            title="🚀 Deploying Server Structure",
+            description="**Phase 3:** Finalizing deployment\n**Status:** All components created successfully!",
             color=0x00ff00,
             timestamp=datetime.utcnow()
         )
-        final_progress_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
-        final_progress_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
-        final_progress_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
-        final_progress_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        final_progress_embed.add_field(name="📁 Categories", value=f"`{len(created_categories)}`", inline=True)
+        final_progress_embed.add_field(name="💬 Channels", value=f"`{len(created_channels)}`", inline=True)
+        final_progress_embed.add_field(name="🛡️ Roles", value=f"`{len(created_roles)}`", inline=True)
+        final_progress_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
         await message.edit(embed=final_progress_embed)
         
         # Update success message
         success_embed = discord.Embed(
-            title="✅ Server Structure Built Successfully!",
-            description=f"**{template_data['server_name']}** template has been applied to your server.",
+            title="✅ Deployment Successful!",
+            description=f"**{template_data['server_name']}** has been deployed successfully!\nYour server is now ready for use.",
             color=0x00ff00,
             timestamp=datetime.utcnow()
         )
-        success_embed.add_field(name="Categories Created", value=f"{len(created_categories)}", inline=True)
-        success_embed.add_field(name="Channels Created", value=f"{len(created_channels)}", inline=True)
-        success_embed.add_field(name="Roles Created", value=f"{len(created_roles)}", inline=True)
-        success_embed.add_field(name="Channels Cleaned", value=f"{deleted_count} old channels deleted", inline=True)
-        success_embed.add_field(name="Roles Cleaned", value=f"{deleted_roles} old roles deleted", inline=True)
+        success_embed.add_field(name="📁 Categories", value=f"`{len(created_categories)}`", inline=True)
+        success_embed.add_field(name="💬 Channels", value=f"`{len(created_channels)}`", inline=True)
+        success_embed.add_field(name="🛡️ Roles", value=f"`{len(created_roles)}`", inline=True)
+        success_embed.add_field(name="🧹 Cleaned", value=f"`{deleted_count} channels, {deleted_roles} roles`", inline=True)
         
         if template_data.get('server_name'):
-            success_embed.add_field(name="Server Renamed", value=f"✅ {template_data['server_name']}", inline=False)
+            success_embed.add_field(name="🏷️ Server Renamed", value=f"`{template_data['server_name']}`", inline=False)
         
-        success_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro v2.0")
+        success_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
         
         await message.edit(embed=success_embed)
         
     except Exception as e:
         error_embed = discord.Embed(
-            title="❌ Error Building Server Structure",
-            description=f"An error occurred: {str(e)}",
+            title="❌ Deployment Failed",
+            description=f"**Error:** `{str(e)}`\nPlease check bot permissions and try again.",
             color=0xff0000,
             timestamp=datetime.utcnow()
         )
-        error_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+        error_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
         await message.edit(embed=error_embed)
 
-@bot.tree.command(name="deletebuild", description="Delete all categories, channels, and roles")
+@bot.tree.command(name="deletebuild", description="🗑️ Reset server to clean slate")
 async def slash_deletebuild(interaction: discord.Interaction):
     """Slash command version of deletebuild"""
     # Check permissions
@@ -817,13 +814,13 @@ async def slash_deletebuild(interaction: discord.Interaction):
     
     # Create confirmation embed
     embed = discord.Embed(
-        title="⚠️ Confirm Deletion",
-        description="This will delete ALL categories, channels, and roles in the server. This action cannot be undone!",
+        title="⚠️ Server Reset Confirmation",
+        description="**This action will completely reset your server structure.**\nAll categories, channels, and roles will be permanently deleted.",
         color=0xffaa00,
         timestamp=datetime.utcnow()
     )
-    embed.add_field(name="Are you sure?", value="Click the button below to confirm", inline=False)
-    embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+    embed.add_field(name="⚠️ Warning", value="This action **cannot be undone**!", inline=False)
+    embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
     
     # Create confirmation button
     class ConfirmView(discord.ui.View):
@@ -855,12 +852,12 @@ async def slash_deletebuild(interaction: discord.Interaction):
                             print(f"Error deleting role {role.name}: {e}")
                 
                 success_embed = discord.Embed(
-                    title="🗑️ Cleanup Complete",
-                    description=f"Successfully deleted {deleted_count} channels/categories and {deleted_roles} roles.",
+                    title="✅ Server Reset Complete",
+                    description=f"**Server has been reset successfully!**\n`{deleted_count}` channels/categories and `{deleted_roles}` roles removed.",
                     color=0x00ff00,
                     timestamp=datetime.utcnow()
                 )
-                success_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+                success_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
                 
                 await interaction.response.edit_message(embed=success_embed, view=None)
             else:
@@ -869,12 +866,12 @@ async def slash_deletebuild(interaction: discord.Interaction):
         @discord.ui.button(label="❌ Cancel", style=discord.ButtonStyle.secondary)
         async def cancel(self, button: discord.ui.Button, interaction: discord.Interaction):
             cancel_embed = discord.Embed(
-                title="❌ Deletion Cancelled",
-                description="The deletion has been cancelled.",
+                title="❌ Reset Cancelled",
+                description="**Server reset has been cancelled.**\nYour server structure remains unchanged.",
                 color=0xff0000,
                 timestamp=datetime.utcnow()
             )
-            cancel_embed.set_footer(text=f"Bot Owner: <@{BOT_OWNER_ID}> | Server Builder Pro")
+            cancel_embed.set_footer(text=f"Developed by <@{BOT_OWNER_ID}> | {BOT_OWNER_NAME} {BOT_VERSION}")
             await interaction.response.edit_message(embed=cancel_embed, view=None)
     
     await interaction.response.send_message(embed=embed, view=ConfirmView())
